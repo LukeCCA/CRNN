@@ -60,7 +60,8 @@ class strLabelConverter(object):
         """
         if length.numel() == 1:
             length = length[0]
-            assert t.numel() == length, "text with length: {} does not match declared length: {}".format(t.numel(), length)
+            assert t.numel() == length, "text with length: {} does not match declared length: {}".format(
+                t.numel(), length)
             if raw:
                 return ''.join([self.alphabet[i - 1] for i in t])
             else:
@@ -71,7 +72,8 @@ class strLabelConverter(object):
                 return ''.join(char_list)
         else:
             # batch mode
-            assert t.numel() == length.sum(), "texts with length: {} does not match declared length: {}".format(t.numel(), length.sum())
+            assert t.numel() == length.sum(
+            ), "texts with length: {} does not match declared length: {}".format(t.numel(), length.sum())
             texts = []
             index = 0
             for i in range(length.numel()):
@@ -114,4 +116,3 @@ class averager(object):
 def loadData(v, data):
     with torch.no_grad():
         v.data.resize_(data.size()).copy_(data)
-

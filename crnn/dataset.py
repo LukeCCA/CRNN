@@ -48,6 +48,8 @@ class lmdbDataset(Dataset):
         return (input_data, label)
 
 # resize each image
+
+
 class resizeNormalize:
 
     def __init__(self, size, interpolation=cv2.INTER_LINEAR):
@@ -56,11 +58,16 @@ class resizeNormalize:
         self.toTensor = transforms.ToTensor()
 
     def __call__(self, input_data):
-        img = cv2.resize(input_data, self.size, interpolation=self.interpolation)
+        img = cv2.resize(
+            input_data,
+            self.size,
+            interpolation=self.interpolation)
         img = self.toTensor(img)
         return img
 
 ######### 可以改寫的 #########
+
+
 class randomSequentialSampler(sampler.Sampler):
 
     def __init__(self, data_source, batch_size):
@@ -72,12 +79,14 @@ class randomSequentialSampler(sampler.Sampler):
         tail = self.num_samples % self.batch_size
         index = torch.LongTensor(self.num_samples).fill_(0)
         for i in range(n_batch):
-            random_start = random.randint(0, self.num_samples - self.batch_size)
+            random_start = random.randint(
+                0, self.num_samples - self.batch_size)
             batch_index = random_start + torch.range(0, self.batch_size - 1)
             index[i * self.batch_size:(i + 1) * self.batch_size] = batch_index
         # deal with tail
         if tail:
-            random_start = random.randint(0, self.num_samples - self.batch_size)
+            random_start = random.randint(
+                0, self.num_samples - self.batch_size)
             tail_index = random_start + torch.range(0, tail - 1)
             index[(i + 1) * self.batch_size:] = tail_index
 
@@ -86,6 +95,7 @@ class randomSequentialSampler(sampler.Sampler):
     def __len__(self):
         return self.num_samples
 ###########################
+
 
 class alignCollate:
 

@@ -20,29 +20,97 @@ import models.crnn as crnn
 parser = argparse.ArgumentParser()
 parser.add_argument('--trainRoot', required=True, help='path to dataset')
 parser.add_argument('--valRoot', required=True, help='path to dataset')
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
-parser.add_argument('--batchSize', type=int, default=32, help='input batch size')
-parser.add_argument('--H', type=int, default=50, help='the height of the input image to network')
-parser.add_argument('--W', type=int, default=200, help='the width of the input image to network')
-parser.add_argument('--nh', type=int, default=128, help='size of the lstm hidden state')
-parser.add_argument('--nepoch', type=int, default=100, help='number of epochs to train for')
+parser.add_argument(
+    '--workers',
+    type=int,
+    help='number of data loading workers',
+    default=2)
+parser.add_argument(
+    '--batchSize',
+    type=int,
+    default=32,
+    help='input batch size')
+parser.add_argument(
+    '--H',
+    type=int,
+    default=50,
+    help='the height of the input image to network')
+parser.add_argument(
+    '--W',
+    type=int,
+    default=200,
+    help='the width of the input image to network')
+parser.add_argument(
+    '--nh',
+    type=int,
+    default=128,
+    help='size of the lstm hidden state')
+parser.add_argument('--nepoch', type=int, default=100,
+                    help='number of epochs to train for')
 # TODO(meijieru): epoch -> iter
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
-parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use')
-parser.add_argument('--pretrained', default='', help="path to pretrained model (to continue training)")
-parser.add_argument('--alphabet', type=str, default='23456789ABCDEFGHJKNPQRSTUVXYZ')
-parser.add_argument('--expr_dir', default='expr', help='Where to store samples and models')
-parser.add_argument('--displayInterval', type=int, default=500, help='Interval to be displayed')
-parser.add_argument('--n_test_disp', type=int, default=10, help='Number of samples to display when test')
-parser.add_argument('--valInterval', type=int, default=500, help='Interval to be displayed')
-parser.add_argument('--saveInterval', type=int, default=500, help='Interval to be displayed')
-parser.add_argument('--lr', type=float, default=0.01, help='learning rate for Critic, not used by adadealta')
-parser.add_argument('--beta1', type=float, default=0.5, help='beta1 for adam. default=0.5')
-parser.add_argument('--adam', action='store_true', help='Whether to use adam (default is rmsprop)')
-parser.add_argument('--adadelta', action='store_true', help='Whether to use adadelta (default is rmsprop)')
-parser.add_argument('--keep_ratio', action='store_true', help='whether to keep ratio for image resize')
-parser.add_argument('--manualSeed', type=int, default=419, help='reproduce experiemnt')
-parser.add_argument('--random_sample', action='store_true', help='whether to sample the dataset with random sampler')
+parser.add_argument(
+    '--ngpu',
+    type=int,
+    default=1,
+    help='number of GPUs to use')
+parser.add_argument(
+    '--pretrained',
+    default='',
+    help="path to pretrained model (to continue training)")
+parser.add_argument(
+    '--alphabet',
+    type=str,
+    default='23456789ABCDEFGHJKNPQRSTUVXYZ')
+parser.add_argument(
+    '--expr_dir',
+    default='expr',
+    help='Where to store samples and models')
+parser.add_argument(
+    '--displayInterval',
+    type=int,
+    default=500,
+    help='Interval to be displayed')
+parser.add_argument('--n_test_disp', type=int, default=10,
+                    help='Number of samples to display when test')
+parser.add_argument(
+    '--valInterval',
+    type=int,
+    default=500,
+    help='Interval to be displayed')
+parser.add_argument(
+    '--saveInterval',
+    type=int,
+    default=500,
+    help='Interval to be displayed')
+parser.add_argument(
+    '--lr',
+    type=float,
+    default=0.01,
+    help='learning rate for Critic, not used by adadealta')
+parser.add_argument('--beta1', type=float, default=0.5,
+                    help='beta1 for adam. default=0.5')
+parser.add_argument(
+    '--adam',
+    action='store_true',
+    help='Whether to use adam (default is rmsprop)')
+parser.add_argument(
+    '--adadelta',
+    action='store_true',
+    help='Whether to use adadelta (default is rmsprop)')
+parser.add_argument(
+    '--keep_ratio',
+    action='store_true',
+    help='whether to keep ratio for image resize')
+parser.add_argument(
+    '--manualSeed',
+    type=int,
+    default=419,
+    help='reproduce experiemnt')
+parser.add_argument(
+    '--random_sample',
+    action='store_true',
+    help='whether to sample the dataset with random sampler')
 opt = parser.parse_args()
 print(opt)
 
@@ -77,9 +145,11 @@ test_dataset = dataset.lmdbDataset(root=opt.valroot)
 nclass = len(opt.alphabet) + 1
 nc = 1
 converter = utils.strLabelConverter(opt.alphabet)
-criterion = CTCLoss(blank=nclass-1, reduction='mean')
+criterion = CTCLoss(blank=nclass - 1, reduction='mean')
 
 # custom weights initialization called on crnn
+
+
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
@@ -117,7 +187,7 @@ loss_avg = utils.averager()
 if opt.adam:
     optimizer = optim.Adam(crnn.parameters(), lr=opt.lr,
                            betas=(opt.beta1, 0.999))
-                           
+
 elif opt.adadelta:
     optimizer = optim.Adadelta(crnn.parameters())
 
@@ -164,7 +234,9 @@ def val(net, dataset, criterion, max_iter=100):
             if pred == target.lower():
                 n_correct += 1
 
-    raw_preds = converter.decode(preds.data, preds_size.data, raw=True)[:opt.n_test_disp]
+    raw_preds = converter.decode(
+        preds.data, preds_size.data, raw=True)[
+        :opt.n_test_disp]
     for raw_pred, pred, gt in zip(raw_preds, sim_preds, cpu_texts):
         print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
@@ -172,7 +244,7 @@ def val(net, dataset, criterion, max_iter=100):
     print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
 
 
-def trainBatch(net, criterion, optimizer):
+def trainBatch(train_iter, net, criterion, optimizer):
     data = train_iter.next()
     cpu_images, cpu_texts = data
     batch_size = cpu_images.size(0)
@@ -198,7 +270,7 @@ for epoch in range(opt.nepoch):
             p.requires_grad = True
         crnn.train()
 
-        cost = trainBatch(crnn, criterion, optimizer)
+        cost = trainBatch(train_iter, crnn, criterion, optimizer)
         loss_avg.add(cost)
         i += 1
 

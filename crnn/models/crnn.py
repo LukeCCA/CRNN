@@ -24,8 +24,8 @@ class CRNN(nn.Module):
 
     def __init__(self, nc, nclass, rnn_node, n_rnn=2, leakyRelu=False):
         super(CRNN, self).__init__()
-        
-        nm = [32, 32, 32 ,32, 32, 32]
+
+        nm = [32, 32, 32, 32, 32, 32]
         ks = [(3, 7), (3, 7), (3, 7), (3, 7), (3, 7), (3, 7)]
         ss = [1, 1, 1, 1, 1, 1]
         ps = [0, 0, 0, 0, 0, 0]
@@ -36,10 +36,10 @@ class CRNN(nn.Module):
             nOut = nm[i]
             cnn.add_module('conv{0}'.format(i),
                            nn.Conv2d(in_channels=nIn,
-                           out_channels=nOut,
-                           kernel_size=ks[i],
-                           stride=ss[i],
-                           padding=ps[i]))
+                                     out_channels=nOut,
+                                     kernel_size=ks[i],
+                                     stride=ss[i],
+                                     padding=ps[i]))
             if batchNormalization:
                 cnn.add_module('batchnorm{0}'.format(i), nn.BatchNorm2d(nOut))
             if leakyRelu:
@@ -67,7 +67,7 @@ class CRNN(nn.Module):
         # conv features
         conv = self.cnn(input)
         b, c, h, w = conv.size()
-        conv = conv.reshape(b,c,h*w)
+        conv = conv.reshape(b, c, h * w)
         conv = conv.permute(2, 0, 1)  # [w, b, c]
 
         # rnn features

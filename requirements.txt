@@ -5,4 +5,7 @@ six
 torch
 torchvision
 opencv-python
-
+scipy
+jupyter
+sklearn
+matplotlib
