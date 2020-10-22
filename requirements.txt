@@ -1,0 +1,8 @@
+lmdb==0.97
+numpy
+Pillow
+six
+torch
+torchvision
+opencv-python
+
